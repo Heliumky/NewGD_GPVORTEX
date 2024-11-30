@@ -1,0 +1,108 @@
+/home/jerrychen/Desktop/GP_new/chia_min_new_gd/psi2D200/GPEquation/GP_vortex_test.py:278: SyntaxWarning: invalid escape sequence '\p'
+  ax2.plot(range(len(ens_TDVP)), np.abs(np.array(ens_TDVP)-Exact_E), label=f'TDVP, $D_{{\psi^{{2}}}}={maxdim_psi2}$')
+/home/jerrychen/Desktop/GP_new/chia_min_new_gd/psi2D200/GPEquation/GP_vortex_test.py:279: SyntaxWarning: invalid escape sequence '\p'
+  ax2.plot(range(len(ens_GD2)), np.abs(np.array(ens_GD2) - Exact_E), label=f'GD2, $D_{{\psi^{{2}}}}={maxdim_psi2}$')
+/home/jerrychen/Desktop/GP_new/chia_min_new_gd/psi2D200/GPEquation/GP_vortex_test.py:292: SyntaxWarning: invalid escape sequence '\p'
+  ax2.plot(ts0, ens_TDVP, marker='.', label=f'TDVP Wall time,$D_{{\psi^{{2}}}}={maxdim_psi2}$')
+/home/jerrychen/Desktop/GP_new/chia_min_new_gd/psi2D200/GPEquation/GP_vortex_test.py:293: SyntaxWarning: invalid escape sequence '\p'
+  ax2.plot(ts2, ens_GD2, marker='+', label=f'GD2 Wall time, $D_{{\psi^{{2}}}}={maxdim_psi2}$')
+/home/jerrychen/Desktop/GP_new/chia_min_new_gd/psi2D200/GPEquation/GP_vortex_test.py:294: SyntaxWarning: invalid escape sequence '\p'
+  ax2.plot(ts_dmrg, ens_DMRG, marker='x', label=f'DMRG Wall time,$D_{{\psi^{{2}}}}={maxdim_psi2}$')
+dx 0.046875
+Non-interacting MPO dim, before compression: [10, 11, 11, 11, 11, 11, 9, 4, 10, 11, 11, 11, 11, 11, 9]
+Non-interacting MPO dim: [4, 6, 6, 6, 6, 6, 6, 4, 5, 5, 5, 5, 5, 5, 3]
+Initial psi dim, before compression: [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+Initial psi dim: [2, 4, 8, 16, 20, 20, 20, 20, 20, 20, 20, 16, 8, 4, 2]
+dt 0.0010986328125
+dt 0.0010986328125
+sweep 0 en = (5.901345657360014-1.8425960907984584e-05j) D_psi2 = 50
+Traceback (most recent call last):
+  File "/home/jerrychen/Desktop/GP_new/chia_min_new_gd/psi2D200/GPEquation/GP_vortex_test.py", line 242, in <module>
+    psi_GD2, ens_GD2, ts2 = gradient_descent2 (H0, psi, g, step_size=dt, steps=10, maxdim=maxdim, cutoff=cutoff_mps, maxdim_psi2=maxdim_psi2, cutoff_psi2=cutoff_mps2)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jerrychen/Desktop/GP_new/chia_min_new_gd/psi2D200/GPEquation/GP_vortex_test.py", line 109, in gradient_descent2
+    psi, enss, ts = gdGP.gradient_descent_GP_MPS_new (steps, psi, H0, g, step_size, niter=3, maxdim=maxdim, cutoff=cutoff, maxdim_psi2=maxdim_psi2, cutoff_psi2=cutoff_psi2, linesearch=True)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jerrychen/Desktop/GP_new/chia_min_new_gd/psi2D200/NumpyTensorTools/gradient_descent_GP.py", line 458, in gradient_descent_GP_MPS_new
+    psi_dim.append(max(ds2))
+    ^^^^^^^
+NameError: name 'psi_dim' is not defined. Did you mean: 'psi2_dim'?
+/home/jerrychen/Desktop/GP_new/chia_min_new_gd/psi2D200/GPEquation/GP_vortex_test.py:278: SyntaxWarning: invalid escape sequence '\p'
+  ax2.plot(range(len(ens_TDVP)), np.abs(np.array(ens_TDVP)-Exact_E), label=f'TDVP, $D_{{\psi^{{2}}}}={maxdim_psi2}$')
+/home/jerrychen/Desktop/GP_new/chia_min_new_gd/psi2D200/GPEquation/GP_vortex_test.py:279: SyntaxWarning: invalid escape sequence '\p'
+  ax2.plot(range(len(ens_GD2)), np.abs(np.array(ens_GD2) - Exact_E), label=f'GD2, $D_{{\psi^{{2}}}}={maxdim_psi2}$')
+/home/jerrychen/Desktop/GP_new/chia_min_new_gd/psi2D200/GPEquation/GP_vortex_test.py:292: SyntaxWarning: invalid escape sequence '\p'
+  ax2.plot(ts0, ens_TDVP, marker='.', label=f'TDVP Wall time,$D_{{\psi^{{2}}}}={maxdim_psi2}$')
+/home/jerrychen/Desktop/GP_new/chia_min_new_gd/psi2D200/GPEquation/GP_vortex_test.py:293: SyntaxWarning: invalid escape sequence '\p'
+  ax2.plot(ts2, ens_GD2, marker='+', label=f'GD2 Wall time, $D_{{\psi^{{2}}}}={maxdim_psi2}$')
+/home/jerrychen/Desktop/GP_new/chia_min_new_gd/psi2D200/GPEquation/GP_vortex_test.py:294: SyntaxWarning: invalid escape sequence '\p'
+  ax2.plot(ts_dmrg, ens_DMRG, marker='x', label=f'DMRG Wall time,$D_{{\psi^{{2}}}}={maxdim_psi2}$')
+/home/jerrychen/anaconda3/envs/gpmps/lib/python3.12/site-packages/matplotlib/cbook.py:1699: ComplexWarning: Casting complex values to real discards the imaginary part
+  return math.isfinite(val)
+/home/jerrychen/anaconda3/envs/gpmps/lib/python3.12/site-packages/matplotlib/cbook.py:1345: ComplexWarning: Casting complex values to real discards the imaginary part
+  return np.asarray(x, float)
+dx 0.046875
+Non-interacting MPO dim, before compression: [10, 11, 11, 11, 11, 11, 9, 4, 10, 11, 11, 11, 11, 11, 9]
+Non-interacting MPO dim: [4, 6, 6, 6, 6, 6, 6, 4, 5, 5, 5, 5, 5, 5, 3]
+Initial psi dim, before compression: [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+Initial psi dim: [2, 4, 8, 16, 20, 20, 20, 20, 20, 20, 20, 16, 8, 4, 2]
+dt 0.0010986328125
+dt 0.0010986328125
+sweep 0 en = (5.901345657360014-1.8425960907984584e-05j) D_psi2 = 50
+sweep 1 en = (6.030989101134363-3.3739234844901145e-06j) D_psi2 = 50
+sweep 2 en = (6.120379102146678+2.6289449437202368e-05j) D_psi2 = 50
+sweep 3 en = (6.138725845650704-5.986196754252685e-05j) D_psi2 = 50
+sweep 4 en = (6.173292555637223+0.00029320543178198565j) D_psi2 = 50
+sweep 5 en = (6.159488815874365+9.087869097377187e-05j) D_psi2 = 50
+sweep 6 en = (6.169218996214+1.5025009071153895e-05j) D_psi2 = 50
+sweep 7 en = (6.175477355721841+0.00043967126439083625j) D_psi2 = 50
+sweep 8 en = (6.150924085292941-5.536097576692673e-05j) D_psi2 = 50
+sweep 9 en = (6.1573307351685385-0.00047751686654278093j) D_psi2 = 50
+/home/jerrychen/Desktop/GP_new/chia_min_new_gd/psi2D200/GPEquation/GP_vortex_test.py:278: SyntaxWarning: invalid escape sequence '\p'
+  ax2.plot(range(len(ens_TDVP)), np.abs(np.array(ens_TDVP)-Exact_E), label=f'TDVP, $D_{{\psi^{{2}}}}={maxdim_psi2}$')
+/home/jerrychen/Desktop/GP_new/chia_min_new_gd/psi2D200/GPEquation/GP_vortex_test.py:279: SyntaxWarning: invalid escape sequence '\p'
+  ax2.plot(range(len(ens_GD2)), np.abs(np.array(ens_GD2) - Exact_E), label=f'GD2, $D_{{\psi^{{2}}}}={maxdim_psi2}$')
+/home/jerrychen/Desktop/GP_new/chia_min_new_gd/psi2D200/GPEquation/GP_vortex_test.py:292: SyntaxWarning: invalid escape sequence '\p'
+  ax2.plot(ts0, ens_TDVP, marker='.', label=f'TDVP Wall time,$D_{{\psi^{{2}}}}={maxdim_psi2}$')
+/home/jerrychen/Desktop/GP_new/chia_min_new_gd/psi2D200/GPEquation/GP_vortex_test.py:293: SyntaxWarning: invalid escape sequence '\p'
+  ax2.plot(ts2, ens_GD2, marker='+', label=f'GD2 Wall time, $D_{{\psi^{{2}}}}={maxdim_psi2}$')
+/home/jerrychen/Desktop/GP_new/chia_min_new_gd/psi2D200/GPEquation/GP_vortex_test.py:294: SyntaxWarning: invalid escape sequence '\p'
+  ax2.plot(ts_dmrg, ens_DMRG, marker='x', label=f'DMRG Wall time,$D_{{\psi^{{2}}}}={maxdim_psi2}$')
+dx 0.046875
+Non-interacting MPO dim, before compression: [10, 11, 11, 11, 11, 11, 9, 4, 10, 11, 11, 11, 11, 11, 9]
+Non-interacting MPO dim: [4, 6, 6, 6, 6, 6, 6, 4, 5, 5, 5, 5, 5, 5, 3]
+Initial psi dim, before compression: [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+Initial psi dim: [2, 4, 8, 16, 20, 20, 20, 20, 20, 20, 20, 16, 8, 4, 2]
+dt 0.0010986328125
+dt 0.0010986328125
+Traceback (most recent call last):
+  File "/home/jerrychen/Desktop/GP_new/chia_min_new_gd/psi2D200/GPEquation/GP_vortex_test.py", line 242, in <module>
+    psi_GD2, ens_GD2, ts2 = gradient_descent2 (H0, psi, g, step_size=dt, steps=10, maxdim=maxdim, cutoff=cutoff_mps, maxdim_psi2=maxdim_psi2, cutoff_psi2=cutoff_mps2)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jerrychen/Desktop/GP_new/chia_min_new_gd/psi2D200/GPEquation/GP_vortex_test.py", line 109, in gradient_descent2
+    psi, enss, ts = gdGP.gradient_descent_GP_MPS_new (steps, psi, H0, g, step_size, niter=3, maxdim=maxdim, cutoff=cutoff, maxdim_psi2=maxdim_psi2, cutoff_psi2=cutoff_psi2, linesearch=True)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jerrychen/Desktop/GP_new/chia_min_new_gd/psi2D200/NumpyTensorTools/gradient_descent_GP.py", line 438, in gradient_descent_GP_MPS_new
+    mps[p], grad, step_size = gradient_descent_GP (func2, mps[p], step_size=step_size, linesearch=linesearch)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jerrychen/Desktop/GP_new/chia_min_new_gd/psi2D200/NumpyTensorTools/gradient_descent_GP.py", line 350, in gradient_descent_GP
+    step_size, f, df = gd.line_search (func, step_size=step_size, c1=1e-4, c2=0.9)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jerrychen/Desktop/GP_new/chia_min_new_gd/psi2D200/NumpyTensorTools/gradient_descent.py", line 159, in line_search
+    f, df = stepf.val_slope (a)
+            ^^^^^^^^^^^^^^^^^^^
+  File "/home/jerrychen/Desktop/GP_new/chia_min_new_gd/psi2D200/NumpyTensorTools/cost_function_GP_new.py", line 333, in val_slope
+    val4, g4 = self.func4.val_slope(a)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jerrychen/Desktop/GP_new/chia_min_new_gd/psi2D200/NumpyTensorTools/cost_function_GP_new.py", line 285, in val_slope
+    env = self.__get_gradient__(x)
+          ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jerrychen/Desktop/GP_new/chia_min_new_gd/psi2D200/NumpyTensorTools/cost_function_GP_new.py", line 251, in __get_gradient__
+    self.psi2, self.LR = dmrg.fit_apply_MPO_new (psi_op, psi, self.psi2, numCenter=2, nsweep=1, maxdim=self.maxdim_psi2, cutoff=self.cutoff_psi2, returnLR=True, LR=self.LR, site=self.site)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jerrychen/Desktop/GP_new/chia_min_new_gd/psi2D200/NumpyTensorTools/numpy_dmrg.py", line 857, in fit_apply_MPO_new
+    LR.update_LR (mps, fitmps, mpo, p, p+1)
+  File "/home/jerrychen/Desktop/GP_new/chia_min_new_gd/psi2D200/NumpyTensorTools/numpy_dmrg.py", line 108, in update_LR
+    if self.LR[i] != None:
+       ^^^^^^^^^^^^^^^^^^
+ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()
