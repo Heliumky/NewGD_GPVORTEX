@@ -406,14 +406,18 @@ def gradient_descent_GP_MPS (nsweep, mps, mpo, g, step_size, niter=1, maxdim=100
     return mps, ens, ts
 
 
+
 # mpo is the non-interacting Hamiltonian
-def gradient_descent_GP_MPS_new (nsweep, mps, mpo, g, step_size, niter=1, maxdim=100000000, cutoff=1e-12, maxdim_psi2=100000000, cutoff_psi2=1e-12, linesearch=True):
+def gradient_descent_GP_MPS_new (nsweep, mps, mpo, g, step_size, niter=1, maxdim=100000000, cutoff=1e-12, maxdim_psi2=100000000, cutoff_psi2=1e-12, linesearch=True, psi2_update_length=-1):
     assert len(mps) == len(mpo)
     npmps.check_MPO_links (mpo)
     npmps.check_MPS_links (mps)
 
     mps = copy.copy(mps)
 
+    t_update = 0.
+    t_gd = 0.
+    t_total = 0.
 
     N = len(mps)
     LR = dmrg.LR_envir_tensors_mpo (N)
@@ -427,19 +431,31 @@ def gradient_descent_GP_MPS_new (nsweep, mps, mpo, g, step_size, niter=1, maxdim
     t1 = time.time()
     psi2 = None
     psi2_dim = []
-    func2 = costf_new.cost_function_GP_new (g, mps, psi2, maxdim_psi2=maxdim_psi2, cutoff_psi2=cutoff_psi2)
+    func2 = costf_new.cost_function_GP_new (g, mps, psi2, maxdim_psi2=maxdim_psi2, cutoff_psi2=cutoff_psi2, psi2_update_length=psi2_update_length)
     for s in range(nsweep):
+        ti = time.time()
         for lr in [0,1]:
             for p in sites[lr]:
+
 
                 LR.update_LR (mps, mps, mpo, p)
                 LR4.update_LR (mps, p)
 
                 for n in range(niter):
-                    print('!',s,lr,p,n)
+                    #print('!',s,lr,p,n)
+
+                    t1 = time.time()
                     func2.update(LR[p-1], mpo[p], LR[p+1], mps[p], p, LR4[p-1], LR4[p+1])
+                    t2 = time.time()
+                    t_update += t2-t1
+
+
                     A = mps[p]
+                    t1 = time.time()
                     mps[p], grad, step_size = gradient_descent_GP (func2, mps[p], step_size=step_size, linesearch=linesearch)
+                    t2 = time.time()
+                    t_gd += t2-t1
+
                     func2.func4.update_psi(p, mps[p])
 
                 toRight = (lr == 0)
@@ -457,9 +473,10 @@ def gradient_descent_GP_MPS_new (nsweep, mps, mpo, g, step_size, niter=1, maxdim
         en = np.inner (grad.conj().flatten(), A.flatten())
         ens.append(en)
 
-        t2 = time.time()
-        ts.append(t2-t1)
-        print('sweep',s,'en =',en,'D_psi2 =',max(ds2))
+        tf = time.time()
+        ts.append(tf-ti)
+        t_total += tf-ti
+        print('sweep',s,'en =',en,'D_psi2 =',max(ds2),'t:',t_update/t_total,t_gd/t_total)
         psi2_dim.append(max(ds2))
     np.savetxt('NewGD2_psi2_dim.txt', psi2_dim, fmt='%d')
     return mps, ens, ts

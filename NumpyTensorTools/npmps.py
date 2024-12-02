@@ -97,14 +97,14 @@ def reshape_tensor_to_matrix (T, rowrank):
     T = T.reshape((d1,d2))
     return T, dims1, dims2
 
-def truncate_svd2 (T, rowrank, toRight, maxdim=100000000, cutoff=0.):
+def truncate_svd2 (T, rowrank, toRight, maxdim=100000000, mindim=1, cutoff=0.):
     T, ds1, ds2 = reshape_tensor_to_matrix (T, rowrank)
 
     #U, S, Vh = np.linalg.svd (T, full_matrices=False)
     try:
         U, S, Vh = np.linalg.svd (T, full_matrices=False)
     except np.linalg.LinAlgError:
-        np.save('svd_matrix.npy', T)
+        #np.save('svd_matrix.npy', T)
         rr = np.random.uniform(low=1e-14, high=2e-14, size=T.shape)
         T = T+rr
         U, S, Vh = np.linalg.svd (T, full_matrices=False)
@@ -120,6 +120,8 @@ def truncate_svd2 (T, rowrank, toRight, maxdim=100000000, cutoff=0.):
     # Truncation error
     ii_trunc = np.logical_not (ii_keep)
     terr = np.sum(S[ii_trunc])
+
+    ii_keep[:mindim] = True
 
     U, S, Vh = U[:,ii_keep], S[ii_keep], Vh[ii_keep,:]
     S = np.diag(S)

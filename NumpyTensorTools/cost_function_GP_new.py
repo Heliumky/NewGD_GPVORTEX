@@ -207,12 +207,13 @@ class cost_function_xHx:
         return val, g
 
 class cost_function_phi4_new:
-    def __init__ (self, psi, maxdim_psi2, cutoff_psi2, psi2=None, normalize=True):
+    def __init__ (self, psi, maxdim_psi2, cutoff_psi2, psi2=None, normalize=True, psi2_update_length=-1):
         self.psi = copy.copy(psi)
         self.normalize = normalize
         self.maxdim_psi2 = maxdim_psi2
         self.cutoff_psi2 = cutoff_psi2
         self.LR = None
+        self.psi2_update_length = psi2_update_length
 
         # Initialize psi2
         self.psi_op = qtt.MPS_to_MPO (psi)
@@ -248,7 +249,7 @@ class cost_function_phi4_new:
         psi_op = copy.copy(self.psi_op)
         psi_op[site] = qtt.MPS_tensor_to_MPO_tensor(A)
 
-        self.psi2, self.LR = dmrg.fit_apply_MPO_new (psi_op, psi, self.psi2, numCenter=2, nsweep=2, maxdim=self.maxdim_psi2, cutoff=self.cutoff_psi2, returnLR=True, LR=self.LR, site=self.site)
+        self.psi2, self.LR = dmrg.fit_apply_MPO_new (psi_op, psi, self.psi2, numCenter=2, nsweep=2, maxdim=self.maxdim_psi2, cutoff=self.cutoff_psi2, returnLR=True, LR=self.LR, site=self.site, psi2_update_length=self.psi2_update_length)
         self.LR.update_LR (psi, self.psi2, psi_op, site)
 
         #ds2 = self.psi2_dims()
@@ -317,10 +318,10 @@ class cost_function_GP:
         return 2*val2+self.g*val4, 2*g2+self.g*g4
 
 class cost_function_GP_new:
-    def __init__ (self, g, psi, psi2, maxdim_psi2, cutoff_psi2, normalize=True):
+    def __init__ (self, g, psi, psi2, maxdim_psi2, cutoff_psi2, normalize=True, psi2_update_length=-1):
         self.g = g
         self.normalize = normalize
-        self.func4 = cost_function_phi4_new (psi, maxdim_psi2, cutoff_psi2, psi2, normalize)
+        self.func4 = cost_function_phi4_new (psi, maxdim_psi2, cutoff_psi2, psi2, normalize, psi2_update_length)
 
     def update (self, L, M, R, x, site, L4, R4):
         self.func2 = cost_function_xHx (L, M, R, x, self.normalize)

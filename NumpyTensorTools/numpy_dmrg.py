@@ -812,27 +812,36 @@ def fit_apply_MPO (mpo, mps, fitmps, numCenter, nsweep=1, maxdim=100000000, cuto
         return fitmps
 
 
-def get_sweep_sites_new (N, numCenter, site_beg):
-    res = []
+def get_sweep_sites_new (N, numCenter, site_beg, length=-1):
+    if length == -1:
+        length = N
+    first = max(site_beg - length, 0)
     if numCenter == 2:
-        # to right
-        res += [[0, site] for site in range(site_beg,N-1)]
-        # to left
-        res += [[1, site] for site in range(N-2,-1,-1)]
-        # to right
-        res += [[0, site] for site in range(site_beg-1)]
-    elif numCenter == 1:
-        # to right
-        res += [[0, site] for site in range(site_beg,N)]
-        # to left
-        res += [[1, site] for site in range(N-1,-1,-1)]
-        # to right
-        res += [[0, site] for site in range(site_beg-1)]
+        last = min(site_beg+length-1, N-2)
+    else:
+        last = min(site_beg+length, N-1)
+
+    res = []
+
+    def add (lr, site, res):
+        if len(res) > 0 and res[-1][1] == site:
+            res[-1] = [lr, site]
+        else:
+            res.append([lr, site])
+
+    # to right
+    for site in range(site_beg, last):
+        add (0, site, res)
+    for site in range(last, first-1, -1):
+        add (1, site, res)
+    for site in range(first, site_beg):
+        add (0, site, res)
+    #print(res)
     return res
 
 # Compute mpo|mps> approximately
 # It works better if the initial fit MPS is close to mps0
-def fit_apply_MPO_new (mpo, mps, fitmps, numCenter, nsweep=1, maxdim=100000000, cutoff=0., normalize=False, returnLR=False, LR=None, site=-1):
+def fit_apply_MPO_new (mpo, mps, fitmps, numCenter, nsweep=1, maxdim=100000000, cutoff=0., normalize=False, returnLR=False, LR=None, site=-1, psi2_update_length=-1):
     # Check the MPS and the MPO
     assert (len(mpo) == len(mps) == len(fitmps))
     npmps.check_MPO_links (mpo)
@@ -842,7 +851,7 @@ def fit_apply_MPO_new (mpo, mps, fitmps, numCenter, nsweep=1, maxdim=100000000, 
     # Define the links to update for a sweep
     # First do a left-to-right and then a right-to-left sweep
     N = len(mps)
-    sweeps = get_sweep_sites_new (N, numCenter, site)
+    sweeps = get_sweep_sites_new (N, numCenter, site, psi2_update_length)
 
     fitmps = copy.copy(fitmps)
 

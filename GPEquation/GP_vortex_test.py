@@ -104,9 +104,9 @@ def DMRG_evol (H0, psi, g, nsweep, steps, maxdim, cutoff_mps=1e-12, cutoff_mps2=
     return psi, enss, ts
 
 
-def gradient_descent2 (H0, psi, g, step_size, steps, maxdim=100000000, cutoff=1e-16, maxdim_psi2=100000000, cutoff_psi2=1e-12):
+def gradient_descent2 (H0, psi, g, step_size, steps, maxdim=100000000, cutoff=1e-16, maxdim_psi2=100000000, cutoff_psi2=1e-12, psi2_update_length=-1):
     #psi, enss, ts = gdGP.gradient_descent_GP_MPS (steps, psi, H0, g, step_size, niter=3, maxdim=maxdim, cutoff=cutoff, linesearch=True)
-    psi, enss, ts = gdGP.gradient_descent_GP_MPS_new (steps, psi, H0, g, step_size, niter=3, maxdim=maxdim, cutoff=cutoff, maxdim_psi2=maxdim_psi2, cutoff_psi2=cutoff_psi2, linesearch=True)
+    psi, enss, ts = gdGP.gradient_descent_GP_MPS_new (steps, psi, H0, g, step_size, niter=3, maxdim=maxdim, cutoff=cutoff, maxdim_psi2=maxdim_psi2, cutoff_psi2=cutoff_psi2, linesearch=True, psi2_update_length=psi2_update_length)
     return psi, enss, ts
     #en *= dx
     return psi, enss, ts
@@ -194,6 +194,7 @@ if __name__ == '__main__':
     maxdim_psi2 = 10000
     cutoff_mps = 1e-12
     cutoff_mps2 = 1e-6
+    psi2_update_length = 2
     krylovDim = 10
 
     H_SHO = sho.make_H (N, x1, x2)
@@ -239,7 +240,11 @@ if __name__ == '__main__':
         pickle.dump(psi_DMRG, f)
     
     # Gradient descent
-    psi_GD2, ens_GD2, ts2 = gradient_descent2 (H0, psi, g, step_size=dt, steps=40, maxdim=maxdim, cutoff=cutoff_mps, maxdim_psi2=maxdim_psi2, cutoff_psi2=cutoff_mps2)
+    with open('7_vortex_gd.pkl', 'rb') as f:  # 'rb' means read in binary mode
+        psi = pickle.load(f)
+
+
+    psi_GD2, ens_GD2, ts2 = gradient_descent2 (H0, psi, g, step_size=dt, steps=200, maxdim=maxdim, cutoff=cutoff_mps, maxdim_psi2=maxdim_psi2, cutoff_psi2=cutoff_mps2, psi2_update_length=psi2_update_length)
     GD2_CPUTIME = np.column_stack((ts2, ens_GD2))
     np.savetxt('GD2_CPUTIME.txt', GD2_CPUTIME, fmt='%.12f')
     with open('7_vortex_gd.pkl', 'wb') as f:
