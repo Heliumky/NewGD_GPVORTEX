@@ -191,9 +191,9 @@ if __name__ == '__main__':
     Exact_E = 4.354341506267
 
     maxdim = 20
-    maxdim_psi2 = 50
+    maxdim_psi2 = 10000
     cutoff_mps = 1e-12
-    cutoff_mps2 = 1e-12
+    cutoff_mps2 = 1e-6
     krylovDim = 10
 
     H_SHO = sho.make_H (N, x1, x2)
@@ -239,13 +239,13 @@ if __name__ == '__main__':
         pickle.dump(psi_DMRG, f)
     
     # Gradient descent
-    psi_GD2, ens_GD2, ts2 = gradient_descent2 (H0, psi, g, step_size=dt, steps=10, maxdim=maxdim, cutoff=cutoff_mps, maxdim_psi2=maxdim_psi2, cutoff_psi2=cutoff_mps2)
+    psi_GD2, ens_GD2, ts2 = gradient_descent2 (H0, psi, g, step_size=dt, steps=40, maxdim=maxdim, cutoff=cutoff_mps, maxdim_psi2=maxdim_psi2, cutoff_psi2=cutoff_mps2)
     GD2_CPUTIME = np.column_stack((ts2, ens_GD2))
     np.savetxt('GD2_CPUTIME.txt', GD2_CPUTIME, fmt='%.12f')
     with open('7_vortex_gd.pkl', 'wb') as f:
         pickle.dump(psi_GD2, f)
 
-
+    exit()
 
     # Gradient descent
     #psi_GD3, ens_GD3, ts3 = gradient_descent3 (H0, psi, g, step_size=1, steps=10, maxdim=maxdim, cutoff=cutoff)

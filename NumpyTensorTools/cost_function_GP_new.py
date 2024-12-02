@@ -234,7 +234,7 @@ class cost_function_phi4_new:
             assert abs(1-np.linalg.norm(self.x)) < 1e-12
 
         self.env0 = self.__get_gradient__(self.x)
-        self.val0 = inner (self.env0, self.x, conj=False).real
+        self.val0 = inner (self.env0, self.x).real
 
     def psi2_dims (self):
         return npmps.MPS_dims(self.psi2)
@@ -248,8 +248,11 @@ class cost_function_phi4_new:
         psi_op = copy.copy(self.psi_op)
         psi_op[site] = qtt.MPS_tensor_to_MPO_tensor(A)
 
-        self.psi2, self.LR = dmrg.fit_apply_MPO_new (psi_op, psi, self.psi2, numCenter=2, nsweep=1, maxdim=self.maxdim_psi2, cutoff=self.cutoff_psi2, returnLR=True, LR=self.LR, site=self.site)
+        self.psi2, self.LR = dmrg.fit_apply_MPO_new (psi_op, psi, self.psi2, numCenter=2, nsweep=2, maxdim=self.maxdim_psi2, cutoff=self.cutoff_psi2, returnLR=True, LR=self.LR, site=self.site)
         self.LR.update_LR (psi, self.psi2, psi_op, site)
+
+        #ds2 = self.psi2_dims()
+        #print(max(ds2),ds2)
 
         #  ---- 1              4 ----
         #  |  |---------O--------|  |
@@ -262,7 +265,7 @@ class cost_function_phi4_new:
         #  ----                  ----
         tmp = ncon((self.LR[site-1], npmps.conj(self.psi2[site]), psi_op[site], self.LR[site+1]), ((1,2,-1),(1,3,4),(2,3,-2,5),(4,5,-3)))
 
-        return tmp
+        return tmp.conj()
 
     def set_direction (self, d):
         self.d = d
@@ -271,7 +274,7 @@ class cost_function_phi4_new:
             xd = inner (self.x, d)               # complex number
             d_new = d - xd * self.x                  # complex vector
 
-        self.slope0 = 4 * inner(self.env0, d_new, conj=False).real
+        self.slope0 = 4 * inner(self.env0, d_new).real
 
     def val_slope (self, a):
         if a == 0:
@@ -284,7 +287,7 @@ class cost_function_phi4_new:
 
         env = self.__get_gradient__(x)
 
-        val = inner(env, x, conj=False).real
+        val = inner(env, x).real
 
         d = self.d
         # rescale d
@@ -293,7 +296,7 @@ class cost_function_phi4_new:
             xd = inner (x, d)               # complex number
             d = d - xd * x                  # complex vector
 
-        slope = 4 * inner(env, d, conj=False).real             # real number
+        slope = 4 * inner(env, d).real             # real number
         return val, slope
 
 
@@ -319,16 +322,25 @@ class cost_function_GP_new:
         self.normalize = normalize
         self.func4 = cost_function_phi4_new (psi, maxdim_psi2, cutoff_psi2, psi2, normalize)
 
-    def update (self, L, M, R, x, site):
+    def update (self, L, M, R, x, site, L4, R4):
         self.func2 = cost_function_xHx (L, M, R, x, self.normalize)
         self.func4.set_site (site)
         self.env0 = self.func2.Hx + self.g * self.func4.env0
+
+        self.func4_old = cost_function_phi4 (L4, R4, x, self.normalize)
+        print('*',np.linalg.norm(self.func4.env0 - self.func4_old.env0), self.func4.val0-self.func4_old.val0)
 
     def set_direction (self, d):
         self.func2.set_direction(d)
         self.func4.set_direction(d)
 
+        self.func4_old.set_direction(d)
+
     def val_slope (self, a):
         val2, g2 = self.func2.val_slope(a)
         val4, g4 = self.func4.val_slope(a)
+
+        val4_old, g4_old = self.func4_old.val_slope(a)
+        print('**',val4-val4_old,g4-g4_old)
+
         return 2*val2+self.g*val4, 2*g2+self.g*g4

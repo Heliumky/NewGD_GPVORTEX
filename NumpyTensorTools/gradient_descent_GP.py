@@ -345,8 +345,8 @@ def gradient_descent_GP (func, x, step_size, linesearch=False, normalize=True):
         return x, grad'''
 
     if linesearch:
-        if step_size < 1e-2:
-            step_size = 1e-2
+        if step_size < 1e-4:
+            step_size = 1e-4
         step_size, f, df = gd.line_search (func, step_size=step_size, c1=1e-4, c2=0.9)
 
     x_next = x + step_size * direction
@@ -378,7 +378,7 @@ def gradient_descent_GP_MPS (nsweep, mps, mpo, g, step_size, niter=1, maxdim=100
     ts = []
     t1 = time.time()
     psi2 = None
-    LR4dim = []
+    #LR4dim = []
     for s in range(nsweep):
         for lr in [0,1]:
             for p in sites[lr]:
@@ -398,11 +398,11 @@ def gradient_descent_GP_MPS (nsweep, mps, mpo, g, step_size, niter=1, maxdim=100
         ens.append(en)
         t2 = time.time()
         ts.append(t2-t1)
-        print('sweep',s,'en =',en,'f =',f,'grad =',grad,'alpha =',step_size)
-        LR4dim.append(LR4.dim(i))
-        max_dim_psi2 = np.max(LR4dim)
-        psi2_dim.append(max_dim_psi2)
-    np.savetxt('GD2_psi2_dim.txt', psi2_dim, fmt='%d')
+        print('sweep',s,'en =',en,'alpha =',step_size)
+        #LR4dim.append(LR4.dim(i))
+        #max_dim_psi2 = np.max(LR4dim)
+        #psi2_dim.append(max_dim_psi2)
+    #np.savetxt('GD2_psi2_dim.txt', psi2_dim, fmt='%d')
     return mps, ens, ts
 
 
@@ -418,6 +418,8 @@ def gradient_descent_GP_MPS_new (nsweep, mps, mpo, g, step_size, niter=1, maxdim
     N = len(mps)
     LR = dmrg.LR_envir_tensors_mpo (N)
 
+    LR4 = mpssqr.MPSSquare (N, cutoff=cutoff)       # cutoff = 0, no truncation
+    LR4.update_LR (mps, N-1)                    # put center to the last site
 
     sites = [range(N), range(N-1,-1,-1)]
     ens = []
@@ -431,13 +433,14 @@ def gradient_descent_GP_MPS_new (nsweep, mps, mpo, g, step_size, niter=1, maxdim
             for p in sites[lr]:
 
                 LR.update_LR (mps, mps, mpo, p)
+                LR4.update_LR (mps, p)
 
                 for n in range(niter):
-                    func2.update(LR[p-1], mpo[p], LR[p+1], mps[p], p)
+                    print('!',s,lr,p,n)
+                    func2.update(LR[p-1], mpo[p], LR[p+1], mps[p], p, LR4[p-1], LR4[p+1])
                     A = mps[p]
                     mps[p], grad, step_size = gradient_descent_GP (func2, mps[p], step_size=step_size, linesearch=linesearch)
                     func2.func4.update_psi(p, mps[p])
-                    en = np.inner (grad.conj().flatten(), A.flatten())
 
                 toRight = (lr == 0)
                 mps = dmrg.orthogonalize_MPS_tensor (mps, p, toRight=toRight, maxdim=maxdim, cutoff=cutoff)
@@ -451,7 +454,9 @@ def gradient_descent_GP_MPS_new (nsweep, mps, mpo, g, step_size, niter=1, maxdim
 
         ds2 = func2.func4.psi2_dims()
 
+        en = np.inner (grad.conj().flatten(), A.flatten())
         ens.append(en)
+
         t2 = time.time()
         ts.append(t2-t1)
         print('sweep',s,'en =',en,'D_psi2 =',max(ds2))
