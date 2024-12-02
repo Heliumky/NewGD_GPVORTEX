@@ -323,25 +323,17 @@ class cost_function_GP_new:
         self.normalize = normalize
         self.func4 = cost_function_phi4_new (psi, maxdim_psi2, cutoff_psi2, psi2, normalize, psi2_update_length)
 
-    def update (self, L, M, R, x, site, L4, R4):
+    def update (self, L, M, R, x, site):
         self.func2 = cost_function_xHx (L, M, R, x, self.normalize)
         self.func4.set_site (site)
         self.env0 = self.func2.Hx + self.g * self.func4.env0
-
-        self.func4_old = cost_function_phi4 (L4, R4, x, self.normalize)
-        print('*',np.linalg.norm(self.func4.env0 - self.func4_old.env0), self.func4.val0-self.func4_old.val0)
 
     def set_direction (self, d):
         self.func2.set_direction(d)
         self.func4.set_direction(d)
 
-        self.func4_old.set_direction(d)
-
     def val_slope (self, a):
         val2, g2 = self.func2.val_slope(a)
         val4, g4 = self.func4.val_slope(a)
-
-        val4_old, g4_old = self.func4_old.val_slope(a)
-        print('**',val4-val4_old,g4-g4_old)
 
         return 2*val2+self.g*val4, 2*g2+self.g*g4
