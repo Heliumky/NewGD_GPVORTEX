@@ -35,23 +35,18 @@ def fit_psi_sqr (psi, psi2, maxdim, cutoff=1e-16):
     return fit
 
 def make_H_GP (H0, psi, psi2, g, maxdim_psi2, cutoff_mps2):
-    #t1 = time.time()                                # time
-   # psi2 = psi_sqr (psi)
-    psi2 = fit_psi_sqr(psi, psi2, maxdim_psi2, cutoff = cutoff_mps2)
-   # for i in range(len(psi2)):
-   #     print(psi2[i].shape)
-   # t2 = time.time()                                # time
-   # print('psi2 time',(t2-t1))                      # time
+    #psi2 = fit_psi_sqr(psi, psi2, maxdim_psi2, cutoff = cutoff_mps2)
 
     H_psi = qtt.MPS_to_MPO (psi2)
     H_psi[0] *= g
     H = npmps.sum_2MPO (H0, H_psi)
     #H = npmps.svd_compress_MPO (H, cutoff=1e-12)
-    return H, psi2
+    return H
 
-def imag_time_evol (H0, psi, g, dt, steps, maxdim, maxdim_psi2=100000000, cutoff_mps=1e-12, cutoff_mps2=1e-2, krylovDim=10):
+def imag_time_evol (H0, psi, g, dt, steps, maxdim, maxdim_psi2=100000000, cutoff_mps=1e-12, cutoff_mps2=1e-2, krylovDim=10, psi2=None):
     psi = copy.copy(psi)
-    psi2 = psi_sqr (psi)
+    if psi2 == None:
+        psi2 = psi_sqr (psi)
     enss = []
     ts = []
     t11 = time.time()
@@ -59,18 +54,18 @@ def imag_time_evol (H0, psi, g, dt, steps, maxdim, maxdim_psi2=100000000, cutoff
     for n in range(steps):
         t1 = time.time()                                # timedx
         # Update the Hamiltonian
-        H, psi2 = make_H_GP (H0, psi, psi2, g,  maxdim_psi2, cutoff_mps2 = cutoff_mps2)
+        H = make_H_GP (H0, psi, psi2, g,  maxdim_psi2, cutoff_mps2 = cutoff_mps2)
         # TDVP
         psi2_dim.append(np.max(npmps.MPS_dims(psi2)))
         psi, ens, terrs = dmrg.tdvp (2, psi, H, dt, [maxdim], cutoff=cutoff_mps, krylovDim=krylovDim, verbose=False)
         en = np.abs(ens[-1])
         enss.append(np.real(en))
-        #print('TDVP',n,en)
-        #print("inner E = ",np.abs(npmps.inner_MPO (psi, psi, H)))
         t2 = time.time()                                # time
         print('imag time evol time',(t2-t1))                      # time
         t22 = time.time()
         ts.append(t22-t11)
+
+        psi2 = fit_psi_sqr(psi, psi2, maxdim_psi2, cutoff = cutoff_mps2)
     np.savetxt('psi2_dim.txt', psi2_dim, fmt='%d')
     return psi, enss, ts
 
@@ -106,10 +101,8 @@ def DMRG_evol (H0, psi, g, nsweep, steps, maxdim, cutoff_mps=1e-12, cutoff_mps2=
 
 def gradient_descent2 (H0, psi, g, step_size, steps, maxdim=100000000, cutoff=1e-16, maxdim_psi2=100000000, cutoff_psi2=1e-12, psi2_update_length=-1):
     #psi, enss, ts = gdGP.gradient_descent_GP_MPS (steps, psi, H0, g, step_size, niter=3, maxdim=maxdim, cutoff=cutoff, linesearch=True)
-    psi, enss, ts = gdGP.gradient_descent_GP_MPS_new (steps, psi, H0, g, step_size, niter=3, maxdim=maxdim, cutoff=cutoff, maxdim_psi2=maxdim_psi2, cutoff_psi2=cutoff_psi2, linesearch=True, psi2_update_length=psi2_update_length)
-    return psi, enss, ts
-    #en *= dx
-    return psi, enss, ts
+    psi, enss, ts, psi2 = gdGP.gradient_descent_GP_MPS_new (steps, psi, H0, g, step_size, niter=3, maxdim=maxdim, cutoff=cutoff, maxdim_psi2=maxdim_psi2, cutoff_psi2=cutoff_psi2, linesearch=True, psi2_update_length=psi2_update_length)
+    return psi, enss, ts, psi2
 
 def gradient_descent3 (H0, psi, g, step_size, steps, maxdim=100000000, cutoff=1e-16):
     enss = []
@@ -180,7 +173,7 @@ def print_overlap (mps1, mps2):
     print('overlap',npmps.inner_MPS(mps1, mps2))
 
 if __name__ == '__main__':    
-    N = 8
+    N = 10
     x1,x2 = -6,6
     Ndx = 2**N
     dx = (x2-x1)/Ndx
@@ -218,14 +211,14 @@ if __name__ == '__main__':
     #psi = get_init_state (N, x1, x2, maxdim=maxdim)
     psi = get_init_rand_state (N, x1, x2, maxdim=maxdim, seed = 15, dtype=np.complex128)
     print('Initial psi dim, before compression:',npmps.MPS_dims(psi))
-    psi = npmps.svd_compress_MPS (psi, cutoff=1e-12)
+    psi = npmps.svd_compress_MPS (psi, cutoff=1e-18)
     print('Initial psi dim:',npmps.MPS_dims(psi))
     #psi = qtt.normalize_MPS_by_integral (psi, x1, x2, Dim=2)
 
     # TDVP
     dt = dx**2/2
     print('dt',dt)
-    psi_TDVP, ens_TDVP, ts0 = imag_time_evol (H0, psi, g, dt, steps=0, maxdim=maxdim, maxdim_psi2=maxdim_psi2, cutoff_mps=cutoff_mps, cutoff_mps2=cutoff_mps2, krylovDim=krylovDim)
+    '''psi_TDVP, ens_TDVP, ts0 = imag_time_evol (H0, psi, g, dt, steps=0, maxdim=maxdim, maxdim_psi2=maxdim_psi2, cutoff_mps=cutoff_mps, cutoff_mps2=cutoff_mps2, krylovDim=krylovDim)
     TDVP_CPUTIME = np.column_stack((ts0, ens_TDVP))
     np.savetxt('TDVP_CPUTIME.txt', TDVP_CPUTIME, fmt='%.12f')
     with open('7_vortex_tdvp.pkl', 'wb') as f:
@@ -237,20 +230,31 @@ if __name__ == '__main__':
     DMRG_CPUTIME = np.column_stack((ts_dmrg, ens_DMRG))
     np.savetxt('DMRG_CPUTIME.txt', DMRG_CPUTIME, fmt='%.12f')
     with open('7_vortex_dmrg.pkl', 'wb') as f:
-        pickle.dump(psi_DMRG, f)
+        pickle.dump(psi_DMRG, f)'''
     
     # Gradient descent
-    with open('7_vortex_gd.pkl', 'rb') as f:  # 'rb' means read in binary mode
-        psi = pickle.load(f)
 
+    # Read psi and psi2
+    #with open('7_vortex_gd.pkl', 'rb') as f:  # 'rb' means read in binary mode
+    #    psi = pickle.load(f)
+    #with open('psi2.pkl', 'rb') as f:  # 'rb' means read in binary mode
+    #    psi2 = pickle.load(f)
+    #print('Initial psi dim:',npmps.MPS_dims(psi))
 
-    psi_GD2, ens_GD2, ts2 = gradient_descent2 (H0, psi, g, step_size=dt, steps=200, maxdim=maxdim, cutoff=cutoff_mps, maxdim_psi2=maxdim_psi2, cutoff_psi2=cutoff_mps2, psi2_update_length=psi2_update_length)
+    # TDVP to grow bond dimension
+    #psi, ens_TDVP, ts0 = imag_time_evol (H0, psi, g, dt, steps=1, maxdim=maxdim, maxdim_psi2=maxdim_psi2, cutoff_mps=cutoff_mps, cutoff_mps2=cutoff_mps2, krylovDim=krylovDim, psi2=psi2)
+    #print('Initial psi dim after TDVP:',npmps.MPS_dims(psi))
+
+    # Gradient descent
+    psi_GD2, ens_GD2, ts2, psi2_GD2 = gradient_descent2 (H0, psi, g, step_size=0.1, steps=100, maxdim=maxdim, cutoff=cutoff_mps, maxdim_psi2=maxdim_psi2, cutoff_psi2=cutoff_mps2, psi2_update_length=psi2_update_length)
     GD2_CPUTIME = np.column_stack((ts2, ens_GD2))
     np.savetxt('GD2_CPUTIME.txt', GD2_CPUTIME, fmt='%.12f')
+
+    # Write psi and psi2
     with open('7_vortex_gd.pkl', 'wb') as f:
         pickle.dump(psi_GD2, f)
-
-    exit()
+    with open('psi2.pkl', 'wb') as f:
+        pickle.dump(psi2_GD2, f)
 
     # Gradient descent
     #psi_GD3, ens_GD3, ts3 = gradient_descent3 (H0, psi, g, step_size=1, steps=10, maxdim=maxdim, cutoff=cutoff)
@@ -280,9 +284,9 @@ if __name__ == '__main__':
     fig2, ax2 = plt.subplots()
     ax2.relim()
     ax2.autoscale_view()
-    ax2.plot(range(len(ens_TDVP)), np.abs(np.array(ens_TDVP)-Exact_E), label=f'TDVP, $D_{{\psi^{{2}}}}={maxdim_psi2}$')
+    #ax2.plot(range(len(ens_TDVP)), np.abs(np.array(ens_TDVP)-Exact_E), label=f'TDVP, $D_{{\psi^{{2}}}}={maxdim_psi2}$')
     ax2.plot(range(len(ens_GD2)), np.abs(np.array(ens_GD2) - Exact_E), label=f'GD2, $D_{{\psi^{{2}}}}={maxdim_psi2}$')
-    ax2.plot(range(len(ens_DMRG)), np.abs(np.array(ens_DMRG)-Exact_E), label='DMRG step')
+    #ax2.plot(range(len(ens_DMRG)), np.abs(np.array(ens_DMRG)-Exact_E), label='DMRG step')
     ax2.set_xlabel(r"time step", loc="center")
     ax2.set_ylabel(r"$<\mu(step)>$", loc="center")
     ax2.set_yscale('log')
@@ -294,9 +298,9 @@ if __name__ == '__main__':
     fig2, ax2 = plt.subplots()
     ax2.relim()
     ax2.autoscale_view()
-    ax2.plot(ts0, ens_TDVP, marker='.', label=f'TDVP Wall time,$D_{{\psi^{{2}}}}={maxdim_psi2}$')
+    #ax2.plot(ts0, ens_TDVP, marker='.', label=f'TDVP Wall time,$D_{{\psi^{{2}}}}={maxdim_psi2}$')
     ax2.plot(ts2, ens_GD2, marker='+', label=f'GD2 Wall time, $D_{{\psi^{{2}}}}={maxdim_psi2}$')
-    ax2.plot(ts_dmrg, ens_DMRG, marker='x', label=f'DMRG Wall time,$D_{{\psi^{{2}}}}={maxdim_psi2}$')
+    #ax2.plot(ts_dmrg, ens_DMRG, marker='x', label=f'DMRG Wall time,$D_{{\psi^{{2}}}}={maxdim_psi2}$')
     #ax2.plot(ts0, abs(ens_TDVP-en), marker='.', label='TDVP')
     #ax2.plot(ts2, abs(ens_GD2-en), marker='+', label='GD2')
     ax2.set_xlabel(r"Wall time(s)", loc="center")
@@ -309,7 +313,7 @@ if __name__ == '__main__':
 
     # Plot wavefunction
     psi = qtt.normalize_MPS_by_integral (psi, x1, x2, Dim=2)
-    psi2 = psi_sqr (psi)
+    psi2 = psi2_GD2#psi_sqr (psi)
     X, Y, Z = pltut.plot_2D (psi2, x1, x2, ax=None, func=absSqr, label='Init')
     #fig.savefig('init.pdf')
     # 
@@ -333,15 +337,13 @@ if __name__ == '__main__':
     pltut.plot_2D_proj (psi_GD2, x1, x2, ax=None, func=absSqr, label='GD2_proj')
 
     #plot the contour of the "|psi(x,y)|**2 via the TDVP method"
-    psi_TDVP = qtt.normalize_MPS_by_integral (psi_TDVP, x1, x2, Dim=2)
-
-    pltut.plot_2D_proj (psi_TDVP, x1, x2, ax=None, func=absSqr, label='TDVP_proj')
+    #psi_TDVP = qtt.normalize_MPS_by_integral (psi_TDVP, x1, x2, Dim=2)
+    #pltut.plot_2D_proj (psi_TDVP, x1, x2, ax=None, func=absSqr, label='TDVP_proj')
     
     
     #plot the contour of the "|psi(x,y)|**2 via the TDVP method"
-    psi_DMRG = qtt.normalize_MPS_by_integral (psi_DMRG, x1, x2, Dim=2)
-
-    pltut.plot_2D_proj (psi_DMRG, x1, x2, ax=None, func=absSqr, label='DMRG_proj')
+    #psi_DMRG = qtt.normalize_MPS_by_integral (psi_DMRG, x1, x2, Dim=2)
+    #pltut.plot_2D_proj (psi_DMRG, x1, x2, ax=None, func=absSqr, label='DMRG_proj')
 
 
     '''fig, ax = plt.subplots()

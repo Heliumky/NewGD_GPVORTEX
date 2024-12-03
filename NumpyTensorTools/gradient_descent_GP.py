@@ -451,14 +451,15 @@ def gradient_descent_GP_MPS_new (nsweep, mps, mpo, g, step_size, niter=1, maxdim
                     func2.func4.update_psi(p-1, mps[p-1])
 
         ds2 = func2.func4.psi2_dims()
+        ds = npmps.MPS_dims(mps)
 
         en = np.inner (grad.conj().flatten(), A.flatten())
         ens.append(en)
 
         tf = time.time()
         ts.append(tf-ti)
-        print('sweep',s,'en =',en,'D_psi2 =',max(ds2))
+        print('sweep',s,'en =',en,'D =',max(ds),'D_psi2 =',max(ds2))
         psi2_dim.append(max(ds2))
     np.savetxt('NewGD2_psi2_dim.txt', psi2_dim, fmt='%d')
-    return mps, ens, ts
+    return mps, ens, ts, func2.func4.psi2
 
