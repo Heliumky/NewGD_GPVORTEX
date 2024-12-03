@@ -246,7 +246,7 @@ if __name__ == '__main__':
     #print('Initial psi dim after TDVP:',npmps.MPS_dims(psi))
 
     # Gradient descent
-    psi_GD2, ens_GD2, ts2, psi2_GD2 = gradient_descent2 (H0, psi, g, step_size=0.1, steps=100, maxdim=maxdim, cutoff=cutoff_mps, maxdim_psi2=maxdim_psi2, cutoff_psi2=cutoff_mps2, psi2_update_length=psi2_update_length)
+    psi_GD2, ens_GD2, ts2, psi2_GD2 = gradient_descent2 (H0, psi, g, step_size=0.1, steps=1000, maxdim=maxdim, cutoff=cutoff_mps, maxdim_psi2=maxdim_psi2, cutoff_psi2=cutoff_mps2, psi2_update_length=psi2_update_length)
     GD2_CPUTIME = np.column_stack((ts2, ens_GD2))
     np.savetxt('GD2_CPUTIME.txt', GD2_CPUTIME, fmt='%.12f')
 
