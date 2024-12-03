@@ -190,7 +190,7 @@ if __name__ == '__main__':
     omega = 0.8
     Exact_E = 4.354341506267
 
-    maxdim = 20
+    maxdim = 100
     maxdim_psi2 = 10000
     cutoff_mps = 1e-12
     cutoff_mps2 = 1e-6

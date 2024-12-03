@@ -249,7 +249,7 @@ class cost_function_phi4_new:
         psi_op = copy.copy(self.psi_op)
         psi_op[site] = qtt.MPS_tensor_to_MPO_tensor(A)
 
-        self.psi2, self.LR = dmrg.fit_apply_MPO_new (psi_op, psi, self.psi2, numCenter=2, nsweep=2, maxdim=self.maxdim_psi2, cutoff=self.cutoff_psi2, returnLR=True, LR=self.LR, site=self.site, psi2_update_length=self.psi2_update_length)
+        self.psi2, self.LR = dmrg.fit_apply_MPO_new (psi_op, psi, self.psi2, numCenter=2, nsweep=1, maxdim=self.maxdim_psi2, cutoff=self.cutoff_psi2, returnLR=True, LR=self.LR, site=self.site, psi2_update_length=self.psi2_update_length)
         self.LR.update_LR (psi, self.psi2, psi_op, site)
 
         #ds2 = self.psi2_dims()
