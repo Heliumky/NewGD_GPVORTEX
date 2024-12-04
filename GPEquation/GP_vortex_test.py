@@ -238,8 +238,8 @@ if __name__ == '__main__':
         pickle.dump(psi_DMRG, f)'''
     
     # Gradient descent
-    with open('7_vortex_gd.pkl', 'rb') as f:  # 'rb' means read in binary mode
-        psi = pickle.load(f)
+    #with open('7_vortex_gd.pkl', 'rb') as f:  # 'rb' means read in binary mode
+    #    psi = pickle.load(f)
 
     psi_GD2, ens_GD2, ts2 = gradient_descent2 (H0, psi, g, step_size=dt, steps=1000, maxdim=maxdim, cutoff=cutoff_mps, maxdim_psi2=maxdim_psi2, cutoff_psi2=cutoff_mps2, psi2_update_length=psi2_update_length)
     GD2_CPUTIME = np.column_stack((ts2, ens_GD2))

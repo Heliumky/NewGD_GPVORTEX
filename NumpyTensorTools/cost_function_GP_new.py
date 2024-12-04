@@ -221,8 +221,13 @@ class cost_function_phi4_new:
             #self.psi2 = npmps.exact_apply_MPO (self.psi_op, self.psi)
             #self.psi2 = npmps.svd_compress_MPS (self.psi2, maxdim=maxdim_psi2, cutoff=cutoff_psi2)
 
-            self.psi2 = dmrg.fit_apply_MPO (self.psi_op, self.psi, self.psi, 2, nsweep=1, maxdim=maxdim_psi2, cutoff=1e-14)
+            self.psi2, LR = dmrg.fit_apply_MPO (self.psi_op, self.psi, self.psi, 2, nsweep=2, maxdim=maxdim_psi2, cutoff=1e-14, returnLR=True)
             print("Initial psi2 dim =",npmps.MPS_dims(self.psi2))
+
+            #gg = npmps.normalize_MPS(self.psi2)
+            #dd = npmps.normalize_MPS(psi2)
+            #print('***',npmps.inner_MPS(gg,dd))
+            #exit()
         else:
             self.psi2 = psi2
 
