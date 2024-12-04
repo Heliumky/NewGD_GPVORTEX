@@ -380,6 +380,7 @@ def gradient_descent_GP_MPS (nsweep, mps, mpo, g, step_size, niter=1, maxdim=100
     psi2 = None
     #LR4dim = []
     for s in range(nsweep):
+        ti = time.time()
         for lr in [0,1]:
             for p in sites[lr]:
 
@@ -398,7 +399,7 @@ def gradient_descent_GP_MPS (nsweep, mps, mpo, g, step_size, niter=1, maxdim=100
         ens.append(en)
         t2 = time.time()
         ts.append(t2-t1)
-        print('sweep',s,'en =',en,'alpha =',step_size)
+        print('sweep',s,'en =',en,'alpha =',step_size,'t =',round(t2-ti,2))
         #LR4dim.append(LR4.dim(i))
         #max_dim_psi2 = np.max(LR4dim)
         #psi2_dim.append(max_dim_psi2)
@@ -456,8 +457,8 @@ def gradient_descent_GP_MPS_new (nsweep, mps, mpo, g, step_size, niter=1, maxdim
         ens.append(en)
 
         tf = time.time()
-        ts.append(tf-ti)
-        print('sweep',s,'en =',en,'D_psi2 =',max(ds2))
+        ts.append(tf-t1)
+        print('sweep',s,'en =',en,'D_psi2 =',max(ds2),'t =',round(tf-ti,2))
         psi2_dim.append(max(ds2))
     np.savetxt('NewGD2_psi2_dim.txt', psi2_dim, fmt='%d')
     return mps, ens, ts

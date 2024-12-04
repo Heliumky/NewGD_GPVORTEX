@@ -218,8 +218,11 @@ class cost_function_phi4_new:
         # Initialize psi2
         self.psi_op = qtt.MPS_to_MPO (psi)
         if psi2 == None:
-            self.psi2 = npmps.exact_apply_MPO (self.psi_op, self.psi)
-            self.psi2 = npmps.svd_compress_MPS (self.psi2, maxdim=maxdim_psi2, cutoff=cutoff_psi2)
+            #self.psi2 = npmps.exact_apply_MPO (self.psi_op, self.psi)
+            #self.psi2 = npmps.svd_compress_MPS (self.psi2, maxdim=maxdim_psi2, cutoff=cutoff_psi2)
+
+            self.psi2 = dmrg.fit_apply_MPO (self.psi_op, self.psi, self.psi, 2, nsweep=1, maxdim=maxdim_psi2, cutoff=1e-14)
+            print("Initial psi2 dim =",npmps.MPS_dims(self.psi2))
         else:
             self.psi2 = psi2
 
@@ -249,7 +252,7 @@ class cost_function_phi4_new:
         psi_op = copy.copy(self.psi_op)
         psi_op[site] = qtt.MPS_tensor_to_MPO_tensor(A)
 
-        self.psi2, self.LR = dmrg.fit_apply_MPO_new (psi_op, psi, self.psi2, numCenter=2, nsweep=2, maxdim=self.maxdim_psi2, cutoff=self.cutoff_psi2, returnLR=True, LR=self.LR, site=self.site, psi2_update_length=self.psi2_update_length)
+        self.psi2, self.LR = dmrg.fit_apply_MPO_new (psi_op, psi, self.psi2, numCenter=2, nsweep=1, maxdim=self.maxdim_psi2, cutoff=self.cutoff_psi2, returnLR=True, LR=self.LR, site=self.site, psi2_update_length=self.psi2_update_length)
         self.LR.update_LR (psi, self.psi2, psi_op, site)
 
         #ds2 = self.psi2_dims()
