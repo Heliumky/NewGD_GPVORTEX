@@ -194,7 +194,7 @@ if __name__ == '__main__':
     maxdim_psi2 = 10000
     cutoff_mps = 1e-12
     cutoff_mps2 = 1e-6
-    psi2_update_length = 2
+    psi2_update_length = 1
     krylovDim = 10
 
     H_SHO = sho.make_H (N, x1, x2)
@@ -250,7 +250,7 @@ if __name__ == '__main__':
     with open('7_vortex_gd.pkl', 'wb') as f:
         pickle.dump(psi_GD2, f)
 
-    exit()
+    #exit()
 
     # Gradient descent
     #psi_GD3, ens_GD3, ts3 = gradient_descent3 (H0, psi, g, step_size=1, steps=10, maxdim=maxdim, cutoff=cutoff)

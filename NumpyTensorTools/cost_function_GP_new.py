@@ -249,7 +249,7 @@ class cost_function_phi4_new:
         psi_op = copy.copy(self.psi_op)
         psi_op[site] = qtt.MPS_tensor_to_MPO_tensor(A)
 
-        self.psi2, self.LR = dmrg.fit_apply_MPO_new (psi_op, psi, self.psi2, numCenter=2, nsweep=2, maxdim=self.maxdim_psi2, cutoff=self.cutoff_psi2, returnLR=True, LR=self.LR, site=self.site, psi2_update_length=self.psi2_update_length)
+        self.psi2, self.LR = dmrg.fit_apply_MPO_new (psi_op, psi, self.psi2, numCenter=2, nsweep=1, maxdim=self.maxdim_psi2, cutoff=self.cutoff_psi2, returnLR=True, LR=self.LR, site=self.site, psi2_update_length=self.psi2_update_length)
         self.LR.update_LR (psi, self.psi2, psi_op, site)
 
         #ds2 = self.psi2_dims()
@@ -300,6 +300,21 @@ class cost_function_phi4_new:
         slope = 4 * inner(env, d).real             # real number
         return val, slope
 
+    def val_slope2 (self, a, da=1e-4):
+        if a == 0:
+            return self.val0, self.slope0
+
+        x = self.x + 4. * a * self.d
+        x2 = self.x + 4. * (a+da) * self.d
+        if self.normalize:
+            norm = np.linalg.norm(x)
+            x = x / norm
+            x2 = x2 / np.linalg.norm(x2)
+
+        val = inner(self.env0, x).real
+        val2 = inner(self.env0, x2).real
+        slope = (val2 - val) / da
+        return val, slope
 
 class cost_function_GP:
     def __init__ (self, L, M, R, L4, x, R4, g, normalize=True):
@@ -334,6 +349,6 @@ class cost_function_GP_new:
 
     def val_slope (self, a):
         val2, g2 = self.func2.val_slope(a)
-        val4, g4 = self.func4.val_slope(a)
+        val4, g4 = self.func4.val_slope2(a)
 
         return 2*val2+self.g*val4, 2*g2+self.g*g4
